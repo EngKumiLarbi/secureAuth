@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SecuredAuth - Welcome</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-family: Arial, sans-serif;
+
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+      }
+
+      .container {
+        width: 90%;
+        max-width: 520px;
+
+        background: white;
+
+        padding: 45px 35px;
+
+        text-align: center;
+
+        border-radius: 16px;
+
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      }
+
+      .logo {
+        font-size: 34px;
+        font-weight: bold;
+
+        color: #1f2937;
+
+        margin-bottom: 12px;
+      }
+
+      .logo span {
+        color: #2563eb;
+      }
+
+      h2 {
+        color: #374151;
+
+        font-size: 26px;
+
+        margin-bottom: 20px;
+      }
+
+      .message {
+        color: #374151;
+
+        font-size: 17px;
+
+        line-height: 1.6;
+
+        margin-bottom: 30px;
+      }
+
+      .message a {
+        color: #2563eb;
+
+        font-weight: bold;
+
+        text-decoration: underline;
+      }
+
+      .message a:hover {
+        color: #1d4ed8;
+      }
+
+      .buttons {
+        display: flex;
+
+        justify-content: center;
+
+        gap: 15px;
+
+        flex-wrap: wrap;
+      }
+
+      .button {
+        display: inline-block;
+
+        padding: 13px 28px;
+
+        border-radius: 8px;
+
+        font-size: 16px;
+
+        font-weight: bold;
+
+        text-decoration: none;
+
+        cursor: pointer;
+      }
+
+      .login {
+        background: #2563eb;
+
+        color: white;
+      }
+
+      .login:hover {
+        background: #1d4ed8;
+      }
+
+      .register {
+        background: white;
+
+        color: #2563eb;
+
+        border: 2px solid #2563eb;
+      }
+
+      .register:hover {
+        background: #2563eb;
+
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="logo">Secured<span>Auth</span></div>
+
+      <h2>Welcome</h2>
+
+      <p class="message">
+        Please
+        <a href="login.php">log in</a>
+
+        or
+
+        <a href="register.php">create an account</a>
+
+        to continue.
+      </p>
+
+      <div class="buttons">
+        <a href="login.php" class="button login"> Login </a>
+
+        <a href="register.php" class="button register"> Create Account </a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
+
+http_response_code(200);
+
+echo json_encode([
+    'success' => true,
+    'app' => 'CarePoint Hospital',
+    'api_status' => 'online',
+    'message' => 'CarePoint mobile API is responding.'
+], JSON_UNESCAPED_SLASHES);
