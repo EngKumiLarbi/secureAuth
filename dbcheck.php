@@ -29,6 +29,13 @@ if (!$accepted) {
     exit;
 }
 
+$lastErrorFile = sys_get_temp_dir() . '/securedauth_last_login_error.txt';
+if (is_file($lastErrorFile)) {
+    echo "Last login error:\n  "
+        . trim(str_replace(["\r", "\n"], ' ', (string)file_get_contents($lastErrorFile)))
+        . "\n\n";
+}
+
 echo 'PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ")\n\n";
 
 echo "Environment visibility (values hidden):\n";
@@ -83,4 +90,32 @@ try {
     $conn->close();
 } catch (mysqli_sql_exception $e) {
     echo 'MySQL login: FAILED (' . $e->getCode() . ') ' . $e->getMessage() . "\n";
+}
+
+if (isset($_GET['mailtest'])) {
+    echo "\nMail self-test:\n";
+    require_once __DIR__ . '/mail_config.php';
+
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = MAIL_HOST;
+        $mail->SMTPAuth = true;
+        $mail->Username = MAIL_USERNAME;
+        $mail->Password = MAIL_PASSWORD;
+        $mail->SMTPSecure = MAIL_ENCRYPTION === 'ssl'
+            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = MAIL_PORT;
+        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
+        $mail->addAddress(MAIL_USERNAME);
+        $mail->isHTML(false);
+        $mail->Subject = 'SecuredAuth mail self-test';
+        $mail->Body = 'If you can read this, SMTP is configured correctly.';
+
+        $mail->send();
+        echo '  SMTP send to ' . MAIL_USERNAME . ": OK\n";
+    } catch (Throwable $e) {
+        echo '  SMTP send FAILED: ' . $e->getMessage() . "\n";
+    }
 }

@@ -19,6 +19,8 @@ services:
         value: "27084"
       - key: DB_SSL
         value: "true"
+      - key: DB_SSL_CA
+        sync: false
       - key: DB_NAME
         sync: false
       - key: DB_USERNAME

@@ -123,9 +123,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                 }
             } catch (Throwable $e) {
-                error_log(
-                    "SecuredAuth login error [" . $stage . "]: " . $e->getMessage()
+                $diagnostic = date('c') . ' [' . $stage . '] ' . $e->getMessage();
+                error_log('SecuredAuth login error: ' . $diagnostic);
+
+                // Allow a token-gated diagnostic page to show the exact cause.
+                @file_put_contents(
+                    sys_get_temp_dir() . '/securedauth_last_login_error.txt',
+                    $diagnostic
                 );
+
                 $message = $stage === "mail"
                     ? "We couldn't send your verification code. Please contact the administrator."
                     : "We couldn't complete your login. Please try again.";

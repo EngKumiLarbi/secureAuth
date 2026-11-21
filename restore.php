@@ -26,10 +26,19 @@ if (
 
 require_once __DIR__ . '/db.php';
 
-$backupDirectory = 'C:\\SecuredAuthBackups';
+$backupDirectory = envValue(
+    'BACKUP_DIR',
+    DIRECTORY_SEPARATOR === '\\'
+        ? 'C:\\SecuredAuthBackups'
+        : sys_get_temp_dir() . '/SecuredAuthBackups'
+);
 $testDatabase = 'secured_auth_restore_test';
-$mysqlExe = 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe';
-$dumpExe = 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe';
+$mysqlExe = envValue('MYSQL_PATH', DIRECTORY_SEPARATOR === '\\'
+    ? 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe'
+    : '/usr/bin/mysql');
+$dumpExe = envValue('MYSQLDUMP_PATH', DIRECTORY_SEPARATOR === '\\'
+    ? 'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe'
+    : '/usr/bin/mysqldump');
 
 $error = '';
 $success = '';
@@ -147,7 +156,9 @@ try {
         }
 
         if (!is_executable($mysqlExe) || !is_executable($dumpExe)) {
-            throw new RuntimeException('MySQL 8.0 mysql.exe or mysqldump.exe was not found at the configured path.');
+            throw new RuntimeException(
+                'The mysql and mysqldump utilities were not found. Set MYSQL_PATH and MYSQLDUMP_PATH.'
+            );
         }
 
         $host = envValue('DB_HOST', '127.0.0.1');
@@ -184,6 +195,9 @@ try {
         );
 
         $optionContent = "[client]\n"
+            . (filter_var(envValue('DB_SSL', 'false'), FILTER_VALIDATE_BOOL)
+                ? "ssl-mode=REQUIRED\n"
+                : '')
             . 'user="' . $escapedUser . '"' . "\n"
             . 'password="' . $escapedPassword . '"' . "\n"
             . 'host="' . $escapedHost . '"' . "\n"
@@ -340,7 +354,7 @@ form{display:grid;gap:12px;max-width:620px}
 
     <section class="panel">
         <h2>Available Backups</h2>
-        <p class="subtitle">Folder: C:\SecuredAuthBackups</p>
+        <p class="subtitle">Folder: <?= e($backupDirectory) ?></p>
         <div class="table-wrap">
         <table>
             <thead><tr><th>Backup File</th><th>Date Modified</th><th>Size</th></tr></thead>

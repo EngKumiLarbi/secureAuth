@@ -31,7 +31,12 @@ $success = '';
 $error = '';
 $backupFiles = [];
 
-$backupDirectory = 'C:\\SecuredAuthBackups';
+$backupDirectory = envValue(
+    'BACKUP_DIR',
+    DIRECTORY_SEPARATOR === '\\'
+        ? 'C:\\SecuredAuthBackups'
+        : sys_get_temp_dir() . '/SecuredAuthBackups'
+);
 
 try {
     /* Confirm the Admin still exists and has an active account. */
@@ -72,16 +77,19 @@ try {
 
     if (!is_writable($backupDirectory)) {
         throw new RuntimeException(
-            'PHP cannot write to C:\\SecuredAuthBackups. Check the folder permissions.'
+            'PHP cannot write to ' . $backupDirectory . '. Check the folder permissions.'
         );
     }
 
     /* Locate mysqldump.exe. */
-    $candidates = [
-    'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe',
-    'C:\\xampp\\mysql\\bin\\mysqldump.exe',
-    'C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin\\mysqldump.exe'
-];
+    $candidates = array_values(array_filter([
+        envValue('MYSQLDUMP_PATH', ''),
+        '/usr/bin/mysqldump',
+        '/usr/local/bin/mysqldump',
+        'C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe',
+        'C:\\xampp\\mysql\\bin\\mysqldump.exe',
+        'C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin\\mysqldump.exe'
+    ]));
     $mysqldump = null;
 
     foreach ($candidates as $candidate) {
@@ -112,7 +120,7 @@ try {
 
         if ($mysqldump === null) {
             throw new RuntimeException(
-                'mysqldump.exe was not found. Check C:\\xampp\\mysql\\bin.'
+                'mysqldump was not found. Set MYSQLDUMP_PATH or install the MySQL client tools.'
             );
         }
 
@@ -153,6 +161,9 @@ $dbPassword = envValue('DB_PASSWORD', '');
 
             $defaultsContent =
                 "[client]\n" .
+                (filter_var(envValue('DB_SSL', 'false'), FILTER_VALIDATE_BOOL)
+                    ? "ssl-mode=REQUIRED\n"
+                    : '') .
                 'user="' . $escapeOption((string)$dbUser) . '"' . "\n" .
                 'password="' . $escapeOption((string)$dbPassword) . '"' . "\n" .
                 'host="' . $escapeOption((string)$dbHost) . '"' . "\n" .
@@ -353,7 +364,7 @@ main{margin:0;padding:14px}
     <section class="panel">
         <h2>Create New Backup</h2>
         <p class="subtitle">
-            Destination: <strong>C:\SecuredAuthBackups</strong>
+            Destination: <strong><?= e($backupDirectory) ?></strong>
         </p>
 
         <form method="post" action="backup.php">
