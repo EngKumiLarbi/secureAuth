@@ -5,14 +5,7 @@
 *.bak
 *.log
 vendor/
-# Private configuration files
-/config.php
-/mail_config.php
-
-
-# Private configuration files
-/config.php
-/mail_config.php
+*.zip
 
 
 /SecuredAuth/

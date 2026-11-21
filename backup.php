@@ -326,6 +326,7 @@ main{margin:0;padding:14px}
     <a href="manage_users.php">User Management</a>
     <a href="audit_logs.php">Audit Logs</a>
     <a href="backup.php" class="active">Database Backup</a>
+    <a href="restore.php">Test Restore</a>
     <a href="logout.php">Log out</a>
 </aside>
 
@@ -334,6 +335,11 @@ main{margin:0;padding:14px}
     <p class="subtitle">
         Create and review database backups. Backup files are stored outside
         the website folder.
+    </p>
+
+    <p class="subtitle">
+        Successful backups are recorded in Audit Logs. Restores are limited
+        to the isolated test database.
     </p>
 
     <?php if ($success !== ''): ?>

@@ -138,6 +138,20 @@ body {
 h1 { margin: 0; font-size: 28px; }
 .subtitle { color: #64748b; margin-top: 8px; }
 .logout { color: #1d4ed8; font-weight: bold; text-decoration: none; }
+.topbar-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.action-link {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    padding: 9px 13px;
+    border: 1px solid #1d4ed8;
+    border-radius: 7px;
+    background: #1d4ed8;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.action-link.secondary { background: #fff; color: #1d4ed8; }
 .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
@@ -194,6 +208,7 @@ th { background: #f8fafc; color: #475569; }
     <div class="admin-label">SYSTEM ADMINISTRATOR</div>
     <a class="active" href="admin.php">Dashboard</a>
     <a href="manage_users.php">User Management</a>
+    <a href="backup.php">Database Backups</a>
     <a href="audit_logs.php">Audit Logs</a>
     <a href="security_overview.php">Security Overview</a>
     <a href="#reports">Reports</a>
@@ -206,7 +221,11 @@ th { background: #f8fafc; color: #475569; }
             <h1>Welcome, <?= safe($username) ?>!</h1>
             <p class="subtitle">Administrator control centre</p>
         </div>
-        <a class="logout" href="logout.php">Log out</a>
+        <div class="topbar-actions">
+            <a class="action-link" href="backup.php">Backups</a>
+            <a class="action-link secondary" href="audit_logs.php">Audit history</a>
+            <a class="logout" href="logout.php">Log out</a>
+        </div>
     </div>
 
     <div class="cards">

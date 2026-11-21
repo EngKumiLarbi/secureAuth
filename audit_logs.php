@@ -267,6 +267,7 @@ a.logout {
 
     <a href="admin.php">Dashboard</a>
     <a href="manage_users.php">User Management</a>
+    <a href="backup.php">Database Backups</a>
     <a href="audit_logs.php" class="active">Audit Logs</a>
     <a href="logout.php">Log out</a>
 </aside>

@@ -7,6 +7,11 @@
     <title>SecuredAuth - Welcome</title>
 
     <style>
+      :root {
+        --scene-rgb: 39, 61, 50;
+        --scene-fallback: #273d32;
+      }
+
       * {
         box-sizing: border-box;
         margin: 0;
@@ -14,148 +19,194 @@
       }
 
       body {
+        position: relative;
+        isolation: isolate;
         min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-
+        padding: 48px max(24px, calc((100vw - 1100px) / 2));
         font-family: Arial, sans-serif;
-
-        background: linear-gradient(135deg, #2563eb, #1e40af);
+        background-color: var(--scene-fallback);
       }
 
-      .container {
-        width: 90%;
-        max-width: 520px;
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
 
-        background: white;
+      body::before {
+        z-index: -2;
+        background-image: url("images/iStock-African-student.jpg");
+        background-position: 54% 35%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        transform: scale(1.04);
+        animation: scene-drift 50s ease-in-out infinite alternate;
+      }
 
-        padding: 45px 35px;
+      body::after {
+        z-index: -1;
+        background:
+          radial-gradient(
+            ellipse at center,
+            transparent 34%,
+            rgba(0, 0, 0, 0.42) 100%
+          ),
+          linear-gradient(
+            115deg,
+            rgba(var(--scene-rgb), 0.86) 0%,
+            rgba(var(--scene-rgb), 0.62) 55%,
+            rgba(var(--scene-rgb), 0.42) 100%
+          );
+      }
 
-        text-align: center;
+      @keyframes scene-drift {
+        from {
+          transform: scale(1.04) translate3d(0, 0, 0);
+        }
 
-        border-radius: 16px;
+        to {
+          transform: scale(1.09) translate3d(-0.4%, 0.4%, 0);
+        }
+      }
 
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      .hero {
+        flex: 0 1 1100px;
+        width: 100%;
+        max-width: 1100px;
+        color: #fff;
+        text-align: left;
+        text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
       }
 
       .logo {
-        font-size: 34px;
+        margin-bottom: 18px;
+        font-size: 56px;
         font-weight: bold;
-
-        color: #1f2937;
-
-        margin-bottom: 12px;
+        line-height: 1.1;
       }
 
       .logo span {
-        color: #2563eb;
+        color: #d3e6d9;
       }
 
       h2 {
-        color: #374151;
-
-        font-size: 26px;
-
-        margin-bottom: 20px;
+        margin-bottom: 12px;
+        color: #fff;
+        font-size: 30px;
       }
 
       .message {
-        color: #374151;
-
-        font-size: 17px;
-
+        max-width: 34rem;
+        margin-bottom: 28px;
+        color: rgba(255, 255, 255, 0.96);
+        font-size: 18px;
         line-height: 1.6;
-
-        margin-bottom: 30px;
       }
 
-      .message a {
-        color: #2563eb;
-
-        font-weight: bold;
-
-        text-decoration: underline;
-      }
-
-      .message a:hover {
-        color: #1d4ed8;
-      }
-
-      .buttons {
+      .actions {
         display: flex;
-
-        justify-content: center;
-
-        gap: 15px;
-
+        justify-content: flex-start;
+        gap: 14px;
         flex-wrap: wrap;
       }
 
-      .button {
-        display: inline-block;
-
-        padding: 13px 28px;
-
+      .action {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        border: 2px solid transparent;
         border-radius: 8px;
-
         font-size: 16px;
-
         font-weight: bold;
-
         text-decoration: none;
-
-        cursor: pointer;
+        text-shadow: none;
+        transition:
+          background-color 160ms ease,
+          color 160ms ease,
+          border-color 160ms ease;
       }
 
       .login {
-        background: #2563eb;
-
-        color: white;
+        background: #fff;
+        color: #263d32;
       }
 
       .login:hover {
-        background: #1d4ed8;
+        background: #e8f0eb;
       }
 
       .register {
-        background: white;
-
-        color: #2563eb;
-
-        border: 2px solid #2563eb;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.9);
       }
 
       .register:hover {
-        background: #2563eb;
+        background: rgba(255, 255, 255, 0.22);
+      }
 
-        color: white;
+      .action:focus-visible {
+        outline: 3px solid #fff;
+        outline-offset: 4px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 36px 24px;
+        }
+
+        body::before {
+          background-position: 60% 35%;
+        }
+
+        .hero {
+          text-align: center;
+        }
+
+        .logo {
+          font-size: 42px;
+        }
+
+        h2 {
+          font-size: 26px;
+        }
+
+        .message {
+          margin-right: auto;
+          margin-left: auto;
+        }
+
+        .actions {
+          justify-content: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body::before {
+          animation: none;
+          transform: none;
+        }
       }
     </style>
   </head>
 
   <body>
-    <div class="container">
-      <div class="logo">Secured<span>Auth</span></div>
-
+    <main class="hero">
+      <h1 class="logo">Secured<span>Auth</span></h1>
       <h2>Welcome</h2>
+      <p class="message">Please log in or create an account to continue.</p>
 
-      <p class="message">
-        Please
-        <a href="login.php">log in</a>
-
-        or
-
-        <a href="register.php">create an account</a>
-
-        to continue.
-      </p>
-
-      <div class="buttons">
-        <a href="login.php" class="button login"> Login </a>
-
-        <a href="register.php" class="button register"> Create Account </a>
-      </div>
-    </div>
+      <nav class="actions" aria-label="Account access">
+        <a href="login.php" class="action login">Log in</a>
+        <a href="register.php" class="action register">Create account</a>
+      </nav>
+    </main>
   </body>
 </html>

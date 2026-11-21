@@ -7,14 +7,17 @@ requireApiMethod('POST');
 $conn = apiDatabase();
 $data = apiReadJson();
 
-$username = trim((string)($data['username'] ?? ''));
 $email = trim((string)($data['email'] ?? ''));
 $password = (string)($data['password'] ?? '');
 
-if ($username === '' || $email === '' || $password === '') {
+if (
+    $email === '' ||
+    !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+    $password === ''
+) {
     apiResponse(400, [
         'success' => false,
-        'message' => 'Username, email and password are required.'
+        'message' => 'A valid email address and password are required.'
     ]);
 }
 
@@ -32,17 +35,15 @@ try {
         'SELECT id, username, email, password_hash, salt,
                 role, account_status
          FROM users
-         WHERE username = ?
+            WHERE email = ?
          LIMIT 1'
     );
-    $stmt->bind_param('s', $username);
+        $stmt->bind_param('s', $email);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 
     $valid = $user
-        && filter_var($email, FILTER_VALIDATE_EMAIL)
-        && strcasecmp($email, (string)$user['email']) === 0
         && password_verify(
             $password . $user['salt'] . $pepper,
             $user['password_hash']
@@ -51,7 +52,7 @@ try {
     if (!$valid) {
         apiResponse(401, [
             'success' => false,
-            'message' => 'Username, email or password is incorrect.'
+            'message' => 'Email or password is incorrect.'
         ]);
     }
 
@@ -102,11 +103,12 @@ try {
         $mail->SMTPAuth = true;
         $mail->Username = MAIL_USERNAME;
         $mail->Password = MAIL_PASSWORD;
-        $mail->SMTPSecure =
-            \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = MAIL_ENCRYPTION === 'ssl'
+            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = MAIL_PORT;
 
-        $mail->setFrom(MAIL_USERNAME, MAIL_FROM_NAME);
+        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
         $mail->addAddress((string)$user['email'], (string)$user['username']);
         $mail->isHTML(false);
         $mail->Subject = 'Your CarePoint verification code';
