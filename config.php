@@ -8,6 +8,9 @@ $dotenv->safeLoad();
 
 function envValue(string $key, ?string $default = null): ?string
 {
-    $value = $_ENV[$key] ?? $_SERVER[$key] ?? $default;
-    return $value === false ? $default : $value;
+    $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    if ($value === false || $value === null) {
+        return $default;
+    }
+    return $value;
 }
