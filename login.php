@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($pepper === false || $pepper === "") {
             $message = "Security configuration is missing. Contact the administrator.";
         } else {
+            $stage = "credentials";
             try {
                 $stmt = $conn->prepare(
                     "SELECT id, username, email, password_hash, salt,
@@ -70,6 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     ) {
                         $message = "Your account is awaiting approval.";
                     } else {
+                        $stage = "mail";
                         require_once __DIR__ . "/vendor/autoload.php";
                         require_once __DIR__ . "/mail_config.php";
 
@@ -121,8 +123,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                 }
             } catch (Throwable $e) {
-                error_log("SecuredAuth login error: " . $e->getMessage());
-                $message = "We couldn't complete your login. Please try again.";
+                error_log(
+                    "SecuredAuth login error [" . $stage . "]: " . $e->getMessage()
+                );
+                $message = $stage === "mail"
+                    ? "We couldn't send your verification code. Please contact the administrator."
+                    : "We couldn't complete your login. Please try again.";
             }
         }
     }

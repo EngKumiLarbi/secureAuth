@@ -46,6 +46,16 @@ foreach (
     printf("  %-14s %-8s %s\n", $key, $state, $source);
 }
 
+echo "\nMail configuration (values hidden):\n";
+foreach (
+    ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS']
+    as $key
+) {
+    $value = envValue($key, null);
+    $state = ($value === null || $value === '') ? 'MISSING' : 'set';
+    printf("  %-18s %s\n", $key, $state);
+}
+
 $host = envValue('DB_HOST', '127.0.0.1');
 $port = (int)envValue('DB_PORT', '3306');
 $database = envValue('DB_NAME', 'secured_auth');
