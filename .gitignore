@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 *.sql
+!schema.sql
 *.bak
 *.log
 vendor/

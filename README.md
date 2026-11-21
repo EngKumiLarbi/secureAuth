@@ -7,7 +7,7 @@ SecuredAuth is a PHP application using MySQLi and Composer dependencies.
 1. Provision an external MySQL-compatible database. Render web services do not
    provide a managed MySQL database. The database must be reachable from the
    Render service, and the application's schema must be imported before use.
-   This repository does not currently include a database schema export.
+   Import the included `schema.sql` before starting the service.
 2. In Render, create a Blueprint from this repository and apply `render.yaml`.
    The web service is built from `Dockerfile` and listens on Render's default
    web-service port, `10000`.
