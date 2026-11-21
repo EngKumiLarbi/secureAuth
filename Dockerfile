@@ -8,7 +8,7 @@ RUN apt-get update \
     && sed -i 's/<VirtualHost \*:80>/<VirtualHost *:10000>/' /etc/apache2/sites-available/000-default.conf \
     && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf \
     && echo 'ServerName localhost' >> /etc/apache2/apache2.conf \
-    && printf '\n# Pass Render-injected environment variables through to PHP\nPassEnv APP_ENV APP_DEBUG APP_PEPPER ADMIN_SETUP_TOKEN\nPassEnv DB_HOST DB_PORT DB_NAME DB_USERNAME DB_PASSWORD\nPassEnv MAIL_HOST MAIL_PORT MAIL_ENCRYPTION MAIL_USERNAME MAIL_PASSWORD MAIL_FROM_ADDRESS MAIL_FROM_NAME\n' >> /etc/apache2/sites-available/000-default.conf
+    && printf '\n# Pass Render-injected environment variables through to PHP\nPassEnv APP_ENV APP_DEBUG APP_PEPPER ADMIN_SETUP_TOKEN\nPassEnv DB_HOST DB_PORT DB_NAME DB_USERNAME DB_PASSWORD DB_SSL DB_SSL_CA\nPassEnv MAIL_HOST MAIL_PORT MAIL_ENCRYPTION MAIL_USERNAME MAIL_PASSWORD MAIL_FROM_ADDRESS MAIL_FROM_NAME\n' >> /etc/apache2/sites-available/000-default.conf
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

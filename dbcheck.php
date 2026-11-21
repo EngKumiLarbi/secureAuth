@@ -8,7 +8,7 @@
  */
 declare(strict_types=1);
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/db_connect.php';
 
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -32,7 +32,10 @@ if (!$accepted) {
 echo 'PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ")\n\n";
 
 echo "Environment visibility (values hidden):\n";
-foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD'] as $key) {
+foreach (
+    ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD', 'DB_SSL', 'DB_SSL_CA']
+    as $key
+) {
     $value = envValue($key, null);
     $state = ($value === null || $value === '') ? 'MISSING' : 'set';
     $source = isset($_ENV[$key])
@@ -49,7 +52,9 @@ $database = envValue('DB_NAME', 'secured_auth');
 $username = envValue('DB_USERNAME', 'root');
 
 echo "\nEffective config (non-secret values):\n";
-echo "  host=$host port=$port database=$database user=$username\n\n";
+echo "  host=$host port=$port database=$database user=$username\n";
+echo '  TLS=' . (filter_var(envValue('DB_SSL', 'false'), FILTER_VALIDATE_BOOL) ? 'on' : 'off')
+    . ' CA=' . (envValue('DB_SSL_CA', '') !== '' ? 'provided' : 'not provided') . "\n\n";
 
 $socket = @fsockopen($host, $port, $errno, $errstr, 5);
 if ($socket) {
@@ -59,10 +64,8 @@ if ($socket) {
     echo "TCP connect $host:$port: FAILED ($errno: $errstr)\n";
 }
 
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 try {
-    $conn = new mysqli($host, $username, envValue('DB_PASSWORD', ''), $database, $port);
-    $conn->set_charset('utf8mb4');
+    $conn = db_connect();
     echo "MySQL login: OK\n";
     $result = $conn->query('SHOW TABLES');
     $tables = array_column($result->fetch_all(MYSQLI_NUM), 0);

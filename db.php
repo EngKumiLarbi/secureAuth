@@ -2,19 +2,10 @@
 // filepath: c:\xampp\htdocs\SecuredAuth\db.php
 declare(strict_types=1);
 
-require_once __DIR__ . '/config.php';
-
-$host = envValue('DB_HOST', '127.0.0.1');
-$port = (int) envValue('DB_PORT', '3306');
-$database = envValue('DB_NAME', 'secured_auth');
-$username = envValue('DB_USERNAME', 'root');
-$password = envValue('DB_PASSWORD', '');
-
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+require_once __DIR__ . '/db_connect.php';
 
 try {
-    $conn = new mysqli($host, $username, $password, $database, $port);
-    $conn->set_charset('utf8mb4');
+    $conn = db_connect();
 } catch (mysqli_sql_exception $e) {
     // Diagnostic snapshot: never log the password, but record which variables
     // PHP could actually see so deployment config problems are identifiable.
@@ -34,27 +25,34 @@ try {
         $value = envValue($key, null);
         return ($value === null || $value === '') ? 'missing' : 'set';
     };
+    $keys = [
+        'DB_HOST',
+        'DB_PORT',
+        'DB_NAME',
+        'DB_USERNAME',
+        'DB_PASSWORD',
+        'DB_SSL',
+        'DB_SSL_CA',
+    ];
+
+    $values = [];
+    $sources = [];
+    foreach ($keys as $key) {
+        $values[] = $key . '=' . $setState($key);
+        $sources[] = $key . '=' . $visibility($key);
+    }
 
     error_log(sprintf(
         'Database connection error: %s (code %s) | target=%s:%s db=%s user=%s | '
-        . 'values: DB_HOST=%s DB_PORT=%s DB_NAME=%s DB_USERNAME=%s DB_PASSWORD=%s | '
-        . 'sources: DB_HOST=%s DB_PORT=%s DB_NAME=%s DB_USERNAME=%s DB_PASSWORD=%s',
+        . 'values: %s | sources: %s',
         $e->getMessage(),
         $e->getCode(),
-        $host,
-        $port,
-        $database,
-        $username,
-        $setState('DB_HOST'),
-        $setState('DB_PORT'),
-        $setState('DB_NAME'),
-        $setState('DB_USERNAME'),
-        $setState('DB_PASSWORD'),
-        $visibility('DB_HOST'),
-        $visibility('DB_PORT'),
-        $visibility('DB_NAME'),
-        $visibility('DB_USERNAME'),
-        $visibility('DB_PASSWORD')
+        envValue('DB_HOST', '127.0.0.1'),
+        envValue('DB_PORT', '3306'),
+        envValue('DB_NAME', 'secured_auth'),
+        envValue('DB_USERNAME', 'root'),
+        implode(' ', $values),
+        implode(' ', $sources)
     ));
 
     http_response_code(500);
