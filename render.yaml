@@ -3,7 +3,7 @@ services:
     name: secured-auth
     runtime: docker
     plan: free
-    healthCheckPath: /api/health
+    healthCheckPath: /api/health.php
     envVars:
       - key: APP_ENV
         value: production
