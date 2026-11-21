@@ -37,6 +37,12 @@ function sendMailViaApi(
         throw new RuntimeException('MAIL_API_KEY is not configured.');
     }
 
+    if (!filter_var(MAIL_FROM_ADDRESS, FILTER_VALIDATE_EMAIL)) {
+        throw new RuntimeException(
+            'MAIL_FROM_ADDRESS is not a valid email address: ' . MAIL_FROM_ADDRESS
+        );
+    }
+
     $apiProvider = strtolower((string)envValue('MAIL_API_PROVIDER', 'brevo'));
 
     if ($apiProvider === 'resend') {

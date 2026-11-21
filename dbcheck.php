@@ -67,6 +67,11 @@ foreach (
     printf("  %-18s %s\n", $key, $state);
 }
 
+require_once __DIR__ . '/mail_config.php';
+echo '  Sender email valid: '
+    . (filter_var(MAIL_FROM_ADDRESS, FILTER_VALIDATE_EMAIL) ? 'yes' : 'NO')
+    . "\n";
+
 $host = envValue('DB_HOST', '127.0.0.1');
 $port = (int)envValue('DB_PORT', '3306');
 $database = envValue('DB_NAME', 'secured_auth');
