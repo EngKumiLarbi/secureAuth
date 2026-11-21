@@ -55,7 +55,11 @@ foreach (
 
 echo "\nMail configuration (values hidden):\n";
 foreach (
-    ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS']
+    [
+        'MAIL_PROVIDER', 'MAIL_API_PROVIDER', 'MAIL_API_KEY',
+        'MAIL_HOST', 'MAIL_PORT', 'MAIL_ENCRYPTION',
+        'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS',
+    ]
     as $key
 ) {
     $value = envValue($key, null);
@@ -121,39 +125,23 @@ if (isset($_GET['mailtest'])) {
         }
     }
 
-    $testPort = isset($_GET['mailport']) ? (int)$_GET['mailport'] : MAIL_PORT;
-    $testSecure = isset($_GET['mailsecure'])
-        ? strtolower((string)$_GET['mailsecure'])
-        : MAIL_ENCRYPTION;
+    $recipient = isset($_GET['mailto'])
+        && filter_var($_GET['mailto'], FILTER_VALIDATE_EMAIL)
+        ? (string)$_GET['mailto']
+        : MAIL_USERNAME;
+    $provider = strtolower((string)envValue('MAIL_PROVIDER', 'smtp'));
 
-    echo "\nMail self-test (port=$testPort secure=$testSecure):\n";
-    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    echo "\nMail self-test (provider=$provider):\n";
+    require_once __DIR__ . '/send_mail.php';
     try {
-        $mail->isSMTP();
-        $mail->Host = $smtpHost;
-        $mail->SMTPAuth = true;
-        $mail->Username = MAIL_USERNAME;
-        $mail->Password = MAIL_PASSWORD;
-        $mail->SMTPSecure = $testSecure === 'ssl'
-            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
-            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = $testPort;
-        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-        $mail->addAddress(MAIL_USERNAME);
-        $mail->isHTML(false);
-        $mail->Subject = 'SecuredAuth mail self-test';
-        $mail->Body = 'If you can read this, SMTP is configured correctly.';
-
-        if (isset($_GET['maildebug'])) {
-            $mail->SMTPDebug = 2;
-            $mail->Debugoutput = static function (string $line, int $level): void {
-                echo '    [' . $level . '] ' . trim($line) . "\n";
-            };
-        }
-
-        $mail->send();
-        echo '  SMTP send to ' . MAIL_USERNAME . ": OK\n";
+        sendMail(
+            $recipient,
+            'SecuredAuth test',
+            'SecuredAuth mail self-test',
+            'If you can read this, mail delivery is configured correctly.'
+        );
+        echo '  Send to ' . $recipient . ": OK\n";
     } catch (Throwable $e) {
-        echo '  SMTP send FAILED: ' . $e->getMessage() . "\n";
+        echo '  Send FAILED: ' . $e->getMessage() . "\n";
     }
 }

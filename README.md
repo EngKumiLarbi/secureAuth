@@ -17,9 +17,13 @@ SecuredAuth is a PHP application using MySQLi and Composer dependencies.
    - `ADMIN_SETUP_TOKEN`: exactly 32 random characters.
    - `DB_HOST`, `DB_NAME`, `DB_USERNAME`, and `DB_PASSWORD`: credentials for
      the external MySQL database. Set `DB_PORT` too if it is not `3306`.
-   - `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM_ADDRESS`: SMTP sender
-     credentials. Set `MAIL_HOST`, `MAIL_PORT`, and `MAIL_ENCRYPTION` if your
-     provider does not use the defaults.
+   - Mail delivery: set `MAIL_PROVIDER=api` on Render free services, because
+     outbound SMTP ports `25`, `465`, and `587` are blocked there. Use
+     `MAIL_API_PROVIDER` (`brevo` by default, or `resend`), `MAIL_API_KEY`, and
+     `MAIL_FROM_ADDRESS` with an address verified by that provider. For local
+     development or hosts that allow SMTP, leave `MAIL_PROVIDER=smtp` and set
+     `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, plus `MAIL_HOST`,
+     `MAIL_PORT`, and `MAIL_ENCRYPTION` if your provider uses different values.
 4. After the database schema is loaded and the service is live, visit
    `/setup_admin.php` to promote an existing active account. The setup page
    disables itself after an administrator exists.

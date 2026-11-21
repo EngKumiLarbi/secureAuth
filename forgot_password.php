@@ -76,28 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->close();
 
                 if ($user) {
-                    require_once __DIR__ . '/vendor/autoload.php';
-                    require_once __DIR__ . '/mail_config.php';
+                    require_once __DIR__ . '/send_mail.php';
 
-                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-                    $mail->isSMTP();
-                    $mail->Host = MAIL_HOST;
-                    $mail->SMTPAuth = true;
-                    $mail->Username = MAIL_USERNAME;
-                    $mail->Password = MAIL_PASSWORD;
-                    $mail->SMTPSecure = MAIL_ENCRYPTION === 'ssl'
-                        ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
-                        : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port = MAIL_PORT;
-                    $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-                    $mail->addAddress((string)$user['email'], (string)$user['username']);
-                    $mail->isHTML(false);
-                    $mail->Subject = 'Your SecuredAuth password reset code';
-                    $mail->Body =
+                    sendMail(
+                        (string)$user['email'],
+                        (string)$user['username'],
+                        'Your SecuredAuth password reset code',
                         "Your password reset code is: {$code}\n\n" .
                         "It expires in 5 minutes. If you did not request a reset, " .
-                        "you can ignore this email.";
-                    $mail->send();
+                        "you can ignore this email."
+                    );
 
                     $pendingUserId = (int)$user['id'];
                     $codeHash = hash('sha256', $code);

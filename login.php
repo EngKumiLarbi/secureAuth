@@ -72,33 +72,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         $message = "Your account is awaiting approval.";
                     } else {
                         $stage = "mail";
-                        require_once __DIR__ . "/vendor/autoload.php";
-                        require_once __DIR__ . "/mail_config.php";
+                        require_once __DIR__ . "/send_mail.php";
 
                         // Generate a six-digit, short-lived verification code.
                         $code = (string) random_int(100000, 999999);
 
-                        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-                        $mail->isSMTP();
-                        $mail->Host = MAIL_HOST;
-                        $mail->SMTPAuth = true;
-                        $mail->Username = MAIL_USERNAME;
-                        $mail->Password = MAIL_PASSWORD;
-                        $mail->SMTPSecure = MAIL_ENCRYPTION === 'ssl'
-                            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
-                            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port = MAIL_PORT;
-
-                        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
-                        $mail->addAddress($user["email"], $user["username"]);
-                        $mail->isHTML(false);
-                        $mail->Subject = "Your SecuredAuth verification code";
-                        $mail->Body =
+                        sendMail(
+                            (string)$user["email"],
+                            (string)$user["username"],
+                            "Your SecuredAuth verification code",
                             "Your SecuredAuth verification code is: " . $code .
                             "\n\nThis code expires in 5 minutes. " .
-                            "If you did not try to sign in, you can ignore this email.";
-
-                        $mail->send();
+                            "If you did not try to sign in, you can ignore this email."
+                        );
 
                         // Do not authenticate the user until OTP verification.
                         session_regenerate_id(true);

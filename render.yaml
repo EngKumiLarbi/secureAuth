@@ -27,6 +27,12 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      - key: MAIL_PROVIDER
+        value: api
+      - key: MAIL_API_PROVIDER
+        value: brevo
+      - key: MAIL_API_KEY
+        sync: false
       - key: MAIL_HOST
         value: smtp.gmail.com
       - key: MAIL_PORT
