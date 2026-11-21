@@ -93,25 +93,63 @@ try {
 }
 
 if (isset($_GET['mailtest'])) {
-    echo "\nMail self-test:\n";
     require_once __DIR__ . '/mail_config.php';
 
+    $smtpHost = MAIL_HOST;
+    echo "\nSMTP network probes for $smtpHost:\n";
+    echo '  DNS: ' . gethostbyname($smtpHost) . "\n";
+
+    foreach ([587, 465, 25] as $probePort) {
+        $started = microtime(true);
+        $socket = @fsockopen($smtpHost, $probePort, $probeErrno, $probeErrstr, 5);
+        if ($socket) {
+            fclose($socket);
+            printf(
+                "  %s:%d TCP OK (%.2fs)\n",
+                $smtpHost,
+                $probePort,
+                microtime(true) - $started
+            );
+        } else {
+            printf(
+                "  %s:%d TCP FAILED (%d: %s)\n",
+                $smtpHost,
+                $probePort,
+                $probeErrno,
+                $probeErrstr
+            );
+        }
+    }
+
+    $testPort = isset($_GET['mailport']) ? (int)$_GET['mailport'] : MAIL_PORT;
+    $testSecure = isset($_GET['mailsecure'])
+        ? strtolower((string)$_GET['mailsecure'])
+        : MAIL_ENCRYPTION;
+
+    echo "\nMail self-test (port=$testPort secure=$testSecure):\n";
     $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host = MAIL_HOST;
+        $mail->Host = $smtpHost;
         $mail->SMTPAuth = true;
         $mail->Username = MAIL_USERNAME;
         $mail->Password = MAIL_PASSWORD;
-        $mail->SMTPSecure = MAIL_ENCRYPTION === 'ssl'
+        $mail->SMTPSecure = $testSecure === 'ssl'
             ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
             : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = MAIL_PORT;
+        $mail->Port = $testPort;
         $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
         $mail->addAddress(MAIL_USERNAME);
         $mail->isHTML(false);
         $mail->Subject = 'SecuredAuth mail self-test';
         $mail->Body = 'If you can read this, SMTP is configured correctly.';
+
+        if (isset($_GET['maildebug'])) {
+            $mail->SMTPDebug = 2;
+            $mail->Debugoutput = static function (string $line, int $level): void {
+                echo '    [' . $level . '] ' . trim($line) . "\n";
+            };
+        }
 
         $mail->send();
         echo '  SMTP send to ' . MAIL_USERNAME . ": OK\n";
